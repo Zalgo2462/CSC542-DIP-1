@@ -22,6 +22,4 @@ imageMenu("Point processes", {})
 
 imageMenu("Histogram processes", {})
 
-imageMenu("Neigborhood ops", {})
-
 start()
