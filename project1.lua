@@ -13,13 +13,13 @@ Date: Spring 2017
 -- LuaIP image processing routines
 require "ip"   -- this loads the packed distributable
 local viz = require "visual"
-
+local pProc = require "pointProc"
 -----------
 -- menus --
 -----------
 
-imageMenu("Point processes", {})
+imageMenu("Point processes", {{"Brighten", pProc.brighten}})
 
-imageMenu("Histogram processes", {})
+--imageMenu("Histogram processes", {})
 
 start()
