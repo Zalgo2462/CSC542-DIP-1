@@ -10,6 +10,13 @@ function dumpTable(table)
 end
 
 function clip (input, low, high) 
+  if low == nil then
+    low = 0
+  end
+  if high == nil then
+    high = 255
+  end
+  
   if input < low then
     input = low
   elseif input > high then
