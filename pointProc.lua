@@ -124,6 +124,17 @@ local function p8PseudoColor(img)
   )
 end
 
+local function pseudoColor(img)
+  il.RGB2IHS(img)
+  img:mapPixels(
+    function(i)
+      --assume the image is rgb greyscale
+      return 200, i, 200
+    end
+  )
+  return il.IHS2RGB(img)
+end
+
 return { 
   brighten=pBrighten,
   greyscale=pGreyscale,
@@ -131,5 +142,6 @@ return {
   threshold=pThreshold,
   contrastStretch=pContrast,
   posterize=pPosterize,
-  pseudo8=p8PseudoColor
+  pseudo8=p8PseudoColor,
+  pseudo=pseudoColor
 }
