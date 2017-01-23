@@ -14,17 +14,24 @@ end
 local function pGreyscale(img)
   return img:mapPixels(
     function(r,g,b)
-      local value = round((r * .30 + g *.59 + b * .11))
+      local value = round(r * .30 + g *.59 + b * .11)
       return value, value, value
     end
   )
 end
 
-
+local function pNegate(img)
+  return img:mapPixels(
+    function(r,g,b)
+      return 255 - r, 255- g, 255 - b
+    end
+  )
+end
 
 return { 
   brighten=pBrighten,
-  greyscale=pGreyscale
+  greyscale=pGreyscale,
+  negate=pNegate
 }
   
       

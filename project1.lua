@@ -20,7 +20,8 @@ local pProc = require "pointProc"
 
 imageMenu("Point processes", {
     {"Brighten", pProc.brighten},
-    {"Greyscale", pProc.greyscale}
+    {"Greyscale", pProc.greyscale},
+    {"Negate", pProc.negate}
 })
 
 --imageMenu("Histogram processes", {})
