@@ -1,4 +1,5 @@
 
+local math = require 'math'
 --print and io:write do not seem to work... so this is used
 function print(msg) 
   io.output(io.stdout):write(msg)
@@ -7,6 +8,10 @@ end
 --only works when penlight is installed
 function dumpTable(table)
   debug(require 'pl.pretty'.write(table))
+end
+
+function round (input) 
+  return math.floor(input + .5)
 end
 
 function clip (input, low, high) 
