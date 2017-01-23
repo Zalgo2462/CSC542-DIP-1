@@ -2,7 +2,7 @@ require "ip"
 require "util"
 local il = require "il"
 
-
+--Adds a constant to each channel for each pixel in the image
 local function pBrighten(img, amount) 
   return img:mapPixels(
     function(r, g, b) 
@@ -11,6 +11,11 @@ local function pBrighten(img, amount)
   )
 end
 
+--[[
+Creates a greyscale image using a
+formula similar to the Y value in the 
+YIQ color model
+--]]
 local function pGreyscale(img)
   return img:mapPixels(
     function(r,g,b)
@@ -20,6 +25,7 @@ local function pGreyscale(img)
   )
 end
 
+--Negates an image
 local function pNegate(img)
   return img:mapPixels(
     function(r,g,b)
@@ -28,8 +34,11 @@ local function pNegate(img)
   )
 end
 
+--Apply a binary threshold based on Y channel intensities
 local function pThreshold(img, threshold)
+  --find greyscale intensities via YIQ
   il.RGB2YIQ(img)
+  --write rgb values based on y channel
   return img:mapPixels(
     function(y) 
       if (y > threshold) then
@@ -42,7 +51,7 @@ local function pThreshold(img, threshold)
 end
 
 --[[
-  Description: This function takes in an image, a start intensity, and an end intensity.
+  Takes in an image, a start intensity, and an end intensity.
   From this the intensity of each pixel is adjusted to improve the detail of
   pixels with intensity values between the start and end, and clips those
   that are lower or higher.
@@ -75,20 +84,6 @@ local function pContrast (img, rangeStart, rangeEnd)
 end
 
 local function pPosterize(img, levels)
-  il.RGB2YIQ(img)
-  img:mapPixels(
-    function(y, i, q)
-      local level = math.floor(y / 255 * levels)
-      if (level == 0) then
-        return 0, i, q
-      end      
-      return 255 / level, i, q
-    end
-  )
-  return il.YIQ2RGB(img)
-end
-
-local function pPosterize2(img, levels)
   -- create a posterize function for levels
   local posterize = function(input) 
     --using the theory of function transforms
@@ -104,6 +99,30 @@ local function pPosterize2(img, levels)
   )
 end
 
+local function p8PseudoColor(img) 
+  return img:mapPixels(
+    function(r, g, b)
+      --assume the image is rgb greyscale
+      --use r as the channel
+      if r < 256 / 8 then
+        return 0, 0, 0 --black
+      elseif r < 256 / 8 * 2 then
+        return 255, 0, 0 --red 
+      elseif r < 256 / 8 * 3 then
+        return 0, 255, 0 --green
+      elseif r < 256 / 8 * 4 then
+        return 0, 0, 255 --blue
+      elseif r < 256 / 8 * 5 then
+        return 255, 255, 0 --yellow
+      elseif r < 256/ 8 * 6 then
+        return 0, 255, 255 --cyan
+      elseif r < 256 / 8 * 7 then
+        return 255, 0, 255 --magenta
+      end
+      return 255, 255, 255 --white
+    end
+  )
+end
 
 return { 
   brighten=pBrighten,
@@ -111,5 +130,6 @@ return {
   negate=pNegate,
   threshold=pThreshold,
   contrastStretch=pContrast,
-  posterize=pPosterize2
+  posterize=pPosterize,
+  pseudo8=p8PseudoColor
 }

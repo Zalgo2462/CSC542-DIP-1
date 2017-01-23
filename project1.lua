@@ -28,6 +28,7 @@ imageMenu("Point processes", {
         {name = "rangeStart", type = "number", displaytype = "slider", default = 0, min = 0, max = 255},
         {name = "rangeEnd", type = "number", displaytype = "slider", default = 255, min = 0, max = 255}}},
     {"Posterize", pProc.posterize, {{name = "levels", type = "number", displaytype = "spin", default = 8, min = 2, max = 64}}},
+    {"8 Pseudocolor", pProc.pseudo8}
 })
 
 --imageMenu("Histogram processes", {})
