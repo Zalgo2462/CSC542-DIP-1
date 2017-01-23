@@ -23,7 +23,9 @@ imageMenu("Point processes", {
     {"Brighten", pProc.brighten, {{name = "amount", type = "number", displaytype = "spin", default = 0, min = -255, max = 255}}},
     {"Greyscale", pProc.greyscale},
     {"Negate", pProc.negate},
-    {"Threshold", pProc.threshold, {{name = "threshold", type = "number", displaytype = "slider", default = 128, min = 0, max = 255}}}    
+    {"Threshold", pProc.threshold, {{name = "threshold", type = "number", displaytype = "slider", default = 128, min = 0, max = 255}}},
+    {"Contrast Stretch", pProc.contrastStretch, {{name = "rangeStart", type = "number", displaytype = "slider", default = 0, min = 0, max = 255},
+        {name = "rangeEnd", type = "number", displaytype = "slider", default = 255, min = 0, max = 255}}},
 })
 
 --imageMenu("Histogram processes", {})

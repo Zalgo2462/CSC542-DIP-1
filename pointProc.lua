@@ -53,7 +53,7 @@ local function pContrast (img, rangeStart, rangeEnd)
   if rangeStart > rangeEnd then
     rangeStart,rangeEnd = rangeEnd,rangeStart
   end
-  ip.RGB2YIQ(img)
+  il.RGB2YIQ(img)
   img:mapPixels(
     function (y, i, q)
       local slope = 255/(rangeEnd - rangeStart) --slope of the intensity graph
@@ -70,7 +70,8 @@ local function pContrast (img, rangeStart, rangeEnd)
       end
     end
   )
-  ip.YIQ2RGB(img)
+  il.YIQ2RGB(img)
+  return img
 end
 
 return { 
