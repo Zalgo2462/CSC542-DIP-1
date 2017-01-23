@@ -1,5 +1,3 @@
-
-local math = require "math"
 --print and io:write do not seem to work... so this is used
 function print(msg) 
   io.output(io.stdout):write(msg)

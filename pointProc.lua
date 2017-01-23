@@ -74,10 +74,42 @@ local function pContrast (img, rangeStart, rangeEnd)
   return img
 end
 
+local function pPosterize(img, levels)
+  il.RGB2YIQ(img)
+  img:mapPixels(
+    function(y, i, q)
+      local level = math.floor(y / 255 * levels)
+      if (level == 0) then
+        return 0, i, q
+      end      
+      return 255 / level, i, q
+    end
+  )
+  return il.YIQ2RGB(img)
+end
+
+local function pPosterize2(img, levels)
+  -- create a posterize function for levels
+  local posterize = function(input) 
+    --using the theory of function transforms
+    -- 255 / (levels - 1) controls the jump in height for each level
+    -- input / 256 * levels controls the width of each interval
+    return 255 / (levels - 1) * math.floor(input * levels / 256)
+  end
+  
+  return img:mapPixels(
+    function(r, g, b)
+      return posterize(r), posterize(g), posterize(b)
+    end
+  )
+end
+
+
 return { 
   brighten=pBrighten,
   greyscale=pGreyscale,
   negate=pNegate,
   threshold=pThreshold,
-  contrastStretch=pContrast
+  contrastStretch=pContrast,
+  posterize=pPosterize2
 }

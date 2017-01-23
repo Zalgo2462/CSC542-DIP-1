@@ -24,8 +24,10 @@ imageMenu("Point processes", {
     {"Greyscale", pProc.greyscale},
     {"Negate", pProc.negate},
     {"Threshold", pProc.threshold, {{name = "threshold", type = "number", displaytype = "slider", default = 128, min = 0, max = 255}}},
-    {"Contrast Stretch", pProc.contrastStretch, {{name = "rangeStart", type = "number", displaytype = "slider", default = 0, min = 0, max = 255},
+    {"Contrast Stretch", pProc.contrastStretch, {
+        {name = "rangeStart", type = "number", displaytype = "slider", default = 0, min = 0, max = 255},
         {name = "rangeEnd", type = "number", displaytype = "slider", default = 255, min = 0, max = 255}}},
+    {"Posterize", pProc.posterize, {{name = "levels", type = "number", displaytype = "spin", default = 8, min = 2, max = 64}}},
 })
 
 --imageMenu("Histogram processes", {})
