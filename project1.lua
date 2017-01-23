@@ -13,15 +13,17 @@ Date: Spring 2017
 -- LuaIP image processing routines
 require "ip"   -- this loads the packed distributable
 local viz = require "visual"
+local il = require "il"
 local pProc = require "pointProc"
 -----------
 -- menus --
 -----------
 
 imageMenu("Point processes", {
-    {"Brighten", pProc.brighten},
+    {"Brighten", pProc.brighten, {{name = "amount", type = "number", displaytype = "spin", default = 0, min = -255, max = 255}}},
     {"Greyscale", pProc.greyscale},
-    {"Negate", pProc.negate}
+    {"Negate", pProc.negate},
+    {"Threshold", pProc.threshold, {{name = "threshold", type = "number", displaytype = "slider", default = 128, min = 0, max = 255}}}    
 })
 
 --imageMenu("Histogram processes", {})
