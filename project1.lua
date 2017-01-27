@@ -28,6 +28,9 @@ imageMenu("Point processes", {
         {name = "rangeStart", type = "number", displaytype = "slider", default = 0, min = 0, max = 255},
         {name = "rangeEnd", type = "number", displaytype = "slider", default = 255, min = 0, max = 255}}},
     {"Auto Contrast Stretch", pProc.autoContrastStretch},
+    {"Percentage Contrast Stretch", pProc.percentageContrastStretch, {
+        {name = "lowPercent", type = "number", displaytype = "spin", default = 1, min = 0, max = 100},
+        {name = "highPercent", type = "number", displaytype = "spin", default = 99, min = 0, max = 100}}},
     {"Posterize", pProc.posterize, {{name = "levels", type = "number", displaytype = "spin", default = 8, min = 2, max = 64}}},
     {"8 Pseudocolor", pProc.pseudo8},
     {"Continuous Pseudocolor", pProc.pseudo},

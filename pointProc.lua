@@ -66,7 +66,8 @@ local function pContrast (img, rangeStart, rangeEnd)
   img:mapPixels(
     function (y, i, q)
       local slope = 255/(rangeEnd - rangeStart) --slope of the intensity graph
-      --TODO: confirm that this works as intended
+      --NOTE: The clipping checks may not be required due to the behavior of overflowing
+      --the C-structures. Needs verification.
       if y < rangeStart then
         --clip the pixel that is below the start intensity
         return 0, i, q
@@ -92,7 +93,6 @@ local function pContrastAuto (img)
   il.RGB2YIQ(img)
   local histogram, min, max = createHistogram(img), 0, 0
   il.YIQ2RGB(img)
-  --TODO: find a better way to do this, this seems awful
   local i, count = 1000, 0
   while true do
     i = i - histogram[count]
@@ -116,6 +116,30 @@ local function pContrastAuto (img)
 end
 
 --[[
+  This function takes in the percentage of low and high intensity pixels
+  to ignore. Once the resulting range is computed, a contrast stretch is
+  performed.
+--]]
+function pContrastPercentage (img, lowPercent, highPercent)
+  local pixels = img.width * img.height
+  local pixL, pixH = pixels * (0.01 * lowPercent), pixels * (1- (0.01 * highPercent))
+  il.RGB2YIQ(img)
+  local histogram = createHistogram(img)
+  il.YIQ2RGB(img)
+  local sum, min, max = 0, 0, 255
+  while sum < pixL do
+    sum = sum + histogram[min]
+    min = min + 1
+  end
+  sum = 0
+  while sum < pixH do
+    sum = sum + histogram[max]
+    max = max - 1
+  end
+  return pContrast(img, min, max)
+end
+
+--[[
   This function reduces the number of distinct intensities that appear
   in the image. The image is converted to YIQ and posterized on the 'y'
   component of each pixel.
@@ -130,7 +154,7 @@ local function pPosterize(img, levels)
     return 255 / (levels - 1) * math.floor(input * levels / 256)
   end
 
-  --convert to YIQ, posterize intensity, and return an RGB image
+--convert to YIQ, posterize intensity, and return an RGB image
   il.RGB2YIQ(img)
   img:mapPixels(
     function(y, i, q)
@@ -183,6 +207,7 @@ return {
   threshold=pThreshold,
   contrastStretch=pContrast,
   autoContrastStretch=pContrastAuto,
+  percentageContrastStretch=pContrastPercentage,
   posterize=pPosterize,
   pseudo8=p8PseudoColor,
   pseudo=pseudoColor
