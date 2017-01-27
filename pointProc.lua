@@ -75,7 +75,7 @@ local function pContrast (img, rangeStart, rangeEnd)
         return 255, i, q
       else
         --perform the contrast adjustment and clip
-        return clip(y*slope + rangeStart, 0, 255), i, q
+        return clip(slope * (y - rangeStart), 0, 255), i, q
       end
     end
   )
@@ -83,6 +83,44 @@ local function pContrast (img, rangeStart, rangeEnd)
   return img
 end
 
+--[[
+  Takes in an image and determines the darkest and lightest intensities
+  present in the image. A contrast stretch is then performed with these as the
+  rangeStart and rangeEnd values.
+--]]
+local function pContrastAuto (img)
+  il.RGB2YIQ(img)
+  local histogram, min, max = createHistogram(img), 0, 0
+  il.YIQ2RGB(img)
+  --TODO: find a better way to do this, this seems awful
+  local i, count = 1000, 0
+  while true do
+    i = i - histogram[count]
+    if i < 0 then
+      min = count
+      break
+    end
+    count = count + 1
+  end
+  i, count = 1000, 255
+  while true do
+    i = i - histogram[count]
+    if i < 0 then
+      max = count
+      break
+    end
+    count = count - 1
+  end
+  --call pContrast directly with min and max
+  return pContrast(img, min, max)
+end
+
+--[[
+  This function reduces the number of distinct intensities that appear
+  in the image. The image is converted to YIQ and posterized on the 'y'
+  component of each pixel.
+  NOTE: Last modified by Ben, needs review by Logan.
+--]]
 local function pPosterize(img, levels)
   -- create a posterize function for levels
   local posterize = function(input) 
@@ -91,12 +129,15 @@ local function pPosterize(img, levels)
     -- input / 256 * levels controls the width of each interval
     return 255 / (levels - 1) * math.floor(input * levels / 256)
   end
-  
-  return img:mapPixels(
-    function(r, g, b)
-      return posterize(r), posterize(g), posterize(b)
+
+  --convert to YIQ, posterize intensity, and return an RGB image
+  il.RGB2YIQ(img)
+  img:mapPixels(
+    function(y, i, q)
+      return posterize(y), i, q
     end
   )
+  return il.YIQ2RGB(img)
 end
 
 local function p8PseudoColor(img) 
@@ -141,6 +182,7 @@ return {
   negate=pNegate,
   threshold=pThreshold,
   contrastStretch=pContrast,
+  autoContrastStretch=pContrastAuto,
   posterize=pPosterize,
   pseudo8=p8PseudoColor,
   pseudo=pseudoColor
