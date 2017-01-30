@@ -66,18 +66,7 @@ local function pContrast (img, rangeStart, rangeEnd)
   img:mapPixels(
     function (y, i, q)
       local slope = 255/(rangeEnd - rangeStart) --slope of the intensity graph
-      --NOTE: The clipping checks may not be required due to the behavior of overflowing
-      --the C-structures. Needs verification.
-      if y < rangeStart then
-        --clip the pixel that is below the start intensity
-        return 0, i, q
-      elseif y > rangeEnd then
-        --clip the pixel that is above the end intensity
-        return 255, i, q
-      else
-        --perform the contrast adjustment and clip
-        return clip(slope * (y - rangeStart), 0, 255), i, q
-      end
+      return clip(slope * (y - rangeStart), 0, 255), i, q
     end
   )
   il.YIQ2RGB(img)
