@@ -120,7 +120,7 @@ end
   to ignore. Once the resulting range is computed, a contrast stretch is
   performed.
 --]]
-function pContrastPercentage (img, lowPercent, highPercent)
+local function pContrastPercentage (img, lowPercent, highPercent)
   local pixels = img.width * img.height
   local pixL, pixH = pixels * (0.01 * lowPercent), pixels * (1- (0.01 * highPercent))
   il.RGB2YIQ(img)
@@ -137,6 +137,41 @@ function pContrastPercentage (img, lowPercent, highPercent)
     max = max - 1
   end
   return pContrast(img, min, max)
+end
+
+--[[
+  This function takes in an image and a gamma value. This is used to 
+  increase contrast between low intensities and decrease it between
+  high intensities, or vice-versa. The tranform is being performed on
+  the intensity values of the pixels.
+--]]
+local function pGammaTransform (img, gamma)
+  il.RGB2YIQ(img)
+  img:mapPixels(
+    function (y, i, q)
+      return clip(255*(y/255)^gamma, 0, 255), i, q
+    end
+  )
+  il.YIQ2RGB(img)
+  return img
+end
+
+--[[
+  This function uses the lua math library log function to perform a 
+  log transformation on a provided image. The transform is being
+  performed on the intensity values of the pixels.
+--]]
+local function pLogTransform (img)
+  il.RGB2YIQ(img)
+  img:mapPixels(
+    function (y, i, q)
+      --log base 256 normalizes an input of 255 to 1, which is then
+      --mapped back into the usable range of 0-255
+      return clip(math.log(1 + y, 256)*255, 0, 255), i, q
+    end
+  )
+  il.YIQ2RGB(img)
+  return img
 end
 
 --[[
@@ -208,6 +243,8 @@ return {
   contrastStretch=pContrast,
   autoContrastStretch=pContrastAuto,
   percentageContrastStretch=pContrastPercentage,
+  gamma=pGammaTransform,
+  log=pLogTransform,
   posterize=pPosterize,
   pseudo8=p8PseudoColor,
   pseudo=pseudoColor

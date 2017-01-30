@@ -31,10 +31,13 @@ imageMenu("Point processes", {
     {"Percentage Contrast Stretch", pProc.percentageContrastStretch, {
         {name = "lowPercent", type = "number", displaytype = "spin", default = 1, min = 0, max = 100},
         {name = "highPercent", type = "number", displaytype = "spin", default = 99, min = 0, max = 100}}},
+    {"Gamma", pProc.gamma, {{name = "gamma", type = "number", displaytype = "textbox", default = 1, min = 0, max = 25}}},
+    {"Log", pProc.log},
+    {"Weiss Log", il.logscale},
     {"Posterize", pProc.posterize, {{name = "levels", type = "number", displaytype = "spin", default = 8, min = 2, max = 64}}},
     {"8 Pseudocolor", pProc.pseudo8},
     {"Continuous Pseudocolor", pProc.pseudo},
-})
+  })
 
 --imageMenu("Histogram processes", {})
 
