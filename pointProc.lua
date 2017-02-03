@@ -129,6 +129,28 @@ local function pContrastPercentage (img, lowPercent, highPercent)
 end
 
 --[[
+  This function attempts to flatten an images histogram by
+  applying a transformation based on the CDF of pixel intensities.
+--]]
+local function pHistogramEqualization (img)
+  il.RGB2YIQ(img)
+  local histogram = createHistogram(img)
+  local sums = {}
+  cdf[0] = histogram[0]
+  for i = 1,255 do
+    cdf[i] = cdf[i-1] + histogram[i]
+  end
+  
+  img:mapPixels(
+    function(y, i, q)
+      return cdf[y], i, q
+    end
+  )
+
+  return img
+end
+
+--[[
   This function takes in an image and a gamma value. This is used to 
   increase contrast between low intensities and decrease it between
   high intensities, or vice-versa. The tranform is being performed on
