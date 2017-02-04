@@ -135,20 +135,22 @@ end
 local function pHistogramEqualization (img)
   il.RGB2YIQ(img)
   local histogram = createHistogram(img)
-  local sums = {}
-  cdf[0] = histogram[0]
+  local cdf = {}
+  local pixels = img.width * img.height
+  cdf[0] = histogram[0] / pixels
   for i = 1,255 do
-    cdf[i] = cdf[i-1] + histogram[i]
+    cdf[i] = cdf[i-1] + (histogram[i] / pixels)
   end
   
   img:mapPixels(
     function(y, i, q)
-      return cdf[y], i, q
+      return 255 * cdf[y], i, q
     end
   )
-
+  
+  il.YIQ2RGB(img)
   return img
-end
+end    
 
 --[[
   This function takes in an image and a gamma value. This is used to 
@@ -256,6 +258,7 @@ return {
   percentageContrastStretch=pContrastPercentage,
   gamma=pGammaTransform,
   log=pLogTransform,
+  histogramEqualization=pHistogramEqualization,
   posterize=pPosterize,
   pseudo8=p8PseudoColor,
   pseudo=pseudoColor
