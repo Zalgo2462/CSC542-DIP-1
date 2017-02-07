@@ -157,26 +157,26 @@ end
 
 --[[
   p8PsuedoColor uses an if statement in order to group intensities
-  into 8 bins and assigns colors to those bins
+  into 8 bins and assigns colors to those bins. We use IHS in order to
+  treate rbg grey scale images appropriately.
 --]]
 local function p8PseudoColor(img) 
+  il.RGB2IHS(img)
   return img:mapPixels(
-    function(r, g, b)
-      --assume the image is rgb greyscale
-      --use r as the channel
-      if r < 256 / 8 then
+    function(i, h, s)
+      if i < 256 / 8 then
         return 0, 0, 0 --black
-      elseif r < 256 / 8 * 2 then
+      elseif i < 256 / 8 * 2 then
         return 255, 0, 0 --red 
-      elseif r < 256 / 8 * 3 then
+      elseif i < 256 / 8 * 3 then
         return 0, 255, 0 --green
-      elseif r < 256 / 8 * 4 then
+      elseif i < 256 / 8 * 4 then
         return 0, 0, 255 --blue
-      elseif r < 256 / 8 * 5 then
+      elseif i < 256 / 8 * 5 then
         return 255, 255, 0 --yellow
-      elseif r < 256/ 8 * 6 then
+      elseif i < 256/ 8 * 6 then
         return 0, 255, 255 --cyan
-      elseif r < 256 / 8 * 7 then
+      elseif i < 256 / 8 * 7 then
         return 255, 0, 255 --magenta
       end
       return 255, 255, 255 --white
@@ -187,17 +187,49 @@ end
 --[[
   pPsuedoColor converts an image to IHS then maps the intensity
   field into the hue field. Then it returns the image converted
-  back into RGB.
+  back into RGB. We use IHS in order to treat rbg grey scale 
+  images appropriately.
 --]]
 local function pPseudoColor(img)
   il.RGB2IHS(img)
   img:mapPixels(
     function(i)
-      --assume the image is rgb greyscale
       return 200, i, 200
     end
   )
   return il.IHS2RGB(img)
+end
+
+--[[
+  pSolarize applies a solarize filter to the intensity channel
+  of an image. We use IHS in order to treat rbg grey scale images
+  appropriately.
+--]]
+local function pSolarize(img)
+  il.RGB2IHS(img)
+  local lut = {}
+  for i = 0, 255 do
+    --Curve designed in desmos online graph editor
+    lut[i] = round(128 + (127 / (127.5) ^2) * (i - 127.5)^2)
+  end
+  return img:mapPixels(
+    function(i)
+      greyValue= lut[i]
+      return greyValue, greyValue, greyValue
+    end
+  )
+  
+  --[[
+  BUG: this produces weird artifacts. this may be
+  an issue with IHS2RGB
+  
+  img:mapPixels(
+    function(i,h,s)
+      return lut[i], h, s
+    end
+  )
+  return il.IHS2RGB(img)
+  --]]
 end
 
 return { 
@@ -211,5 +243,6 @@ return {
   bitPlaneSlice=pBitPlaneSlice,
   posterize=pPosterize,
   pseudo8=p8PseudoColor,
-  pseudo=pPseudoColor
+  pseudo=pPseudoColor,
+  solarize=pSolarize
 }

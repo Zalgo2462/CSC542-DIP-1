@@ -35,6 +35,8 @@ imageMenu("Point processes", {
     {"Posterize", pProc.posterize, {{name = "levels", type = "number", displaytype = "spin", default = 8, min = 2, max = 64}}},
     {"8 Pseudocolor", pProc.pseudo8},
     {"Continuous Pseudocolor", pProc.pseudo},
+    {"Solarize", pProc.solarize},
+    {"WS", il.solarize}
   })
 
 imageMenu("Histogram processes", {
