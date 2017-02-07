@@ -3,7 +3,7 @@ require "util"
 require "bit32"
 local il = require "il"
 
---Adds a constant to each channel for each pixel in the image
+--pBrighten adds a constant to each channel for each pixel in the image
 local function pBrighten(img, amount) 
   return img:mapPixels(
     function(r, g, b) 
@@ -13,9 +13,9 @@ local function pBrighten(img, amount)
 end
 
 --[[
-Creates a greyscale image using a
-formula similar to the Y value in the 
-YIQ color model
+  pGreyscale creates a greyscale image using a
+  formula similar to the Y value in the 
+  YIQ color model
 --]]
 local function pGreyscale(img)
   return img:mapPixels(
@@ -26,7 +26,7 @@ local function pGreyscale(img)
   )
 end
 
---Negates an image
+--pNegate negates an image
 local function pNegate(img)
   return img:mapPixels(
     function(r,g,b)
@@ -35,7 +35,7 @@ local function pNegate(img)
   )
 end
 
---Apply a binary threshold based on Y channel intensities
+--pThreshold applies a binary threshold based on Y channel intensities
 local function pThreshold(img, threshold)
   --find greyscale intensities via YIQ
   il.RGB2YIQ(img)
@@ -52,7 +52,7 @@ local function pThreshold(img, threshold)
 end
 
 --[[
-  Takes in an image, a start intensity, and an end intensity.
+  pContrast takes in an image, a start intensity, and an end intensity.
   From this the intensity of each pixel is adjusted to improve the detail of
   pixels with intensity values between the start and end, and clips those
   that are lower or higher.
@@ -75,7 +75,7 @@ local function pContrast (img, rangeStart, rangeEnd)
 end
 
 --[[
-  Takes in an image and determines the darkest and lightest intensities
+  pContrastAuto takes in an image and determines the darkest and lightest intensities
   present in the image. A contrast stretch is then performed with these as the
   rangeStart and rangeEnd values.
 --]]
@@ -106,7 +106,7 @@ local function pContrastAuto (img)
 end
 
 --[[
-  This function takes in the percentage of low and high intensity pixels
+  pContrastPercentage takes in the percentage of low and high intensity pixels
   to ignore. Once the resulting range is computed, a contrast stretch is
   performed.
 --]]
@@ -130,14 +130,18 @@ local function pContrastPercentage (img, lowPercent, highPercent)
 end
 
 --[[
-  This function attempts to flatten an images histogram by
+  pHistogramEqualization attempts to flatten an images histogram by
   applying a transformation based on the CDF of pixel intensities.
 --]]
 local function pHistogramEqualization (img)
   il.RGB2YIQ(img)
   local histogram = createHistogram(img)
+  --cdf the cumulative distribution function
   local cdf = {}
+  --pixels is the normalization factor for the histogram
   local pixels = img.width * img.height
+  
+  --start the summing process of the frequency histogram
   cdf[0] = histogram[0] / pixels
   for i = 1,255 do
     cdf[i] = cdf[i-1] + (histogram[i] / pixels)
@@ -154,7 +158,44 @@ local function pHistogramEqualization (img)
 end    
 
 --[[
-  This function takes in an image and a gamma value. This is used to 
+  pClippedHistogramEqualization attempts to flatten an images histogram by
+  applying a transformation based on the CDF of pixel intensities.
+  Each intensity is clipped down to hold (100 - percentage) / 100 pixels
+  so as not to over-represent certain intensities.
+--]]
+local function pClippedHistogramEqualization (img, percentage)
+  --Normalize and invert the percentage
+  percentage = clip(percentage / 100, 0, 1)
+  
+  il.RGB2YIQ(img)
+  local histogram = createHistogram(img)
+  local cdf = {}
+  local threshold = img.width * img.height * percentage
+  
+  --start the summing process
+  cdf[0] = clip(histogram[0], 0, threshold)
+  for i = 1,255 do
+    cdf[i] = cdf[i-1] + clip(histogram[i], 0, threshold)
+  end
+  
+  --convert to a frequency histogram
+  local normalization = cdf[255]
+  for i = 1, 255 do
+    cdf[i] = cdf[i] / normalization
+  end
+  
+  img:mapPixels(
+    function(y, i, q)
+      return 255 * cdf[y], i, q
+    end
+  )
+
+  il.YIQ2RGB(img)
+  return img
+end
+
+--[[
+  pGammaTransform takes in an image and a gamma value. This is used to 
   increase contrast between low intensities and decrease it between
   high intensities, or vice-versa. The tranform is being performed on
   the intensity values of the pixels.
@@ -171,7 +212,7 @@ local function pGammaTransform (img, gamma)
 end
 
 --[[
-  This function uses the lua math library log function to perform a 
+  pLogTransform uses the lua math library log function to perform a 
   log transformation on a provided image. The transform is being
   performed on the intensity values of the pixels.
 --]]
@@ -189,12 +230,12 @@ local function pLogTransform (img)
 end
 
 --[[
-  This function takes in an image and a bit to slice on. The image is
+  pBitPlaneSlice takes in an image and a bit to slice on. The image is
   converted to HSI to get an unweighted average of the channels for the
   intensity. If the intensity bitwise-anded with the bit shifted left
-  by the specified amount minus 1 returns 1 (truthy) then the pixel
-  is set to 255, 255, 255 (pure-white), otherwise the pixel is set
-  to 0, 0, 0.
+  by the specified amount minus 1 returns a number greater than 0
+  then the pixel is set to 255, 255, 255 (pure-white), otherwise the 
+  pixel is set to 0, 0, 0.
 --]]
 local function pBitPlaneSlice (img, bit)
   il.RGB2IHS(img)
@@ -210,7 +251,7 @@ end
 
 
 --[[
-  This function reduces the number of distinct intensities that appear
+  pPosterize reduces the number of distinct intensities that appear
   in the image. The image is converted to YIQ and posterized on the 'y'
   component of each pixel.
   NOTE: Last modified by Ben, needs review by Logan.
@@ -234,6 +275,10 @@ local function pPosterize(img, levels)
   return il.YIQ2RGB(img)
 end
 
+--[[
+  p8PsuedoColor uses an if statement in order to group intensities
+  into 8 bins and assigns colors to those bins
+--]]
 local function p8PseudoColor(img) 
   return img:mapPixels(
     function(r, g, b)
@@ -259,7 +304,12 @@ local function p8PseudoColor(img)
   )
 end
 
-local function pseudoColor(img)
+--[[
+  pPsuedoColor converts an image to IHS then maps the intensity
+  field into the hue field. Then it returns the image converted
+  back into RGB.
+--]]
+local function pPseudoColor(img)
   il.RGB2IHS(img)
   img:mapPixels(
     function(i)
@@ -281,8 +331,9 @@ return {
   gamma=pGammaTransform,
   log=pLogTransform,
   histogramEqualization=pHistogramEqualization,
+  clippedHistogramEqualization=pClippedHistogramEqualization,
   bitPlaneSlice=pBitPlaneSlice,
   posterize=pPosterize,
   pseudo8=p8PseudoColor,
-  pseudo=pseudoColor
+  pseudo=pPseudoColor
 }
