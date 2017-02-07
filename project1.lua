@@ -31,15 +31,14 @@ imageMenu("Point processes", {
     {"Gamma", pProc.gamma, {{name = "gamma", type = "number", displaytype = "textbox", default = 1, min = 0, max = 25}}},
     {"Log", pProc.log},
     {"Bit-Plane Slice", pProc.bitPlaneSlice, {{name = "bit", type = "number", displaytype = "spin", default = 1, min = 1, max = 8}}},
-    {"Display Histogram", il.showHistogram},
     {"Posterize", pProc.posterize, {{name = "levels", type = "number", displaytype = "spin", default = 8, min = 2, max = 64}}},
     {"8 Pseudocolor", pProc.pseudo8},
     {"Continuous Pseudocolor", pProc.pseudo},
-    {"Solarize", pProc.solarize},
-    {"WS", il.solarize}
+    {"Solarize", pProc.solarize}
   })
 
 imageMenu("Histogram processes", {
+    {"Display Histogram", il.showHistogram},
     {"Auto Contrast Stretch", hProc.autoContrastStretch},
     {"Percentage Contrast Stretch", hProc.percentageContrastStretch, {
         {name = "lowPercent", type = "number", displaytype = "spin", default = 1, min = 0, max = 100},
