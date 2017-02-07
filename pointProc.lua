@@ -1,5 +1,6 @@
 require "ip"
 require "util"
+require "bit32"
 local il = require "il"
 
 --Adds a constant to each channel for each pixel in the image
@@ -141,13 +142,13 @@ local function pHistogramEqualization (img)
   for i = 1,255 do
     cdf[i] = cdf[i-1] + (histogram[i] / pixels)
   end
-  
+
   img:mapPixels(
     function(y, i, q)
       return 255 * cdf[y], i, q
     end
   )
-  
+
   il.YIQ2RGB(img)
   return img
 end    
@@ -186,6 +187,27 @@ local function pLogTransform (img)
   il.YIQ2RGB(img)
   return img
 end
+
+--[[
+  This function takes in an image and a bit to slice on. The image is
+  converted to HSI to get an unweighted average of the channels for the
+  intensity. If the intensity bitwise-anded with the bit shifted left
+  by the specified amount minus 1 returns 1 (truthy) then the pixel
+  is set to 255, 255, 255 (pure-white), otherwise the pixel is set
+  to 0, 0, 0.
+--]]
+local function pBitPlaneSlice (img, bit)
+  il.RGB2IHS(img)
+  return img:mapPixels(
+    function(i, h, s)
+      if bit32.band(bit32.lshift(1, bit - 1), i) > 0 then
+        return 255, 255, 255
+      end
+      return 0, 0, 0
+    end
+  )
+end
+
 
 --[[
   This function reduces the number of distinct intensities that appear
@@ -259,6 +281,7 @@ return {
   gamma=pGammaTransform,
   log=pLogTransform,
   histogramEqualization=pHistogramEqualization,
+  bitPlaneSlice=pBitPlaneSlice,
   posterize=pPosterize,
   pseudo8=p8PseudoColor,
   pseudo=pseudoColor
