@@ -1,10 +1,10 @@
 --[[
 
-  * * * * lip.lua * * * *
+  * * * * project1.lua * * * *
 
-Lua image processing program: exercise all LuaIP library routines.
+Lua image processing program: program 1
 
-Authors: John Weiss and Alex Iverson
+Authors: Logan Lembke and Benjamin Garcia
 Class: CSC442/542 Digital Image Processing
 Date: Spring 2017
 
@@ -40,6 +40,7 @@ imageMenu("Point processes", {
 imageMenu("Histogram processes", {
     {"Display Histogram", il.showHistogram},
     {"Auto Contrast Stretch", hProc.autoContrastStretch},
+    {"A", il.stretch}, 
     {"Percentage Contrast Stretch", hProc.percentageContrastStretch, {
         {name = "lowPercent", type = "number", displaytype = "spin", default = 1, min = 0, max = 100},
         {name = "highPercent", type = "number", displaytype = "spin", default = 99, min = 0, max = 100}}},

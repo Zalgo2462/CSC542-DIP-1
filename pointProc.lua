@@ -1,3 +1,15 @@
+--[[
+
+  * * * * pointProc.lua * * * *
+
+Point processes implementation
+
+Authors: Logan Lembke and Benjamin Garcia
+Class: CSC442/542 Digital Image Processing
+Date: Spring 2017
+
+--]]
+
 require "ip"
 require "util"
 require "bit32"
@@ -134,7 +146,6 @@ end
   pPosterize reduces the number of distinct intensities that appear
   in the image. The image is converted to YIQ and posterized on the 'y'
   component of each pixel.
-  NOTE: Last modified by Ben, needs review by Logan.
 --]]
 local function pPosterize(img, levels)
   -- create a posterize function for levels
@@ -218,18 +229,6 @@ local function pSolarize(img)
       return greyValue, greyValue, greyValue
     end
   )
-  
-  --[[
-  BUG: this produces weird artifacts. this may be
-  an issue with IHS2RGB
-  
-  img:mapPixels(
-    function(i,h,s)
-      return lut[i], h, s
-    end
-  )
-  return il.IHS2RGB(img)
-  --]]
 end
 
 return { 

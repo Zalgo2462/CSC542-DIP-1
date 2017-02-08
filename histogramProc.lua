@@ -1,38 +1,19 @@
+--[[
+
+  * * * * pointProc.lua * * * *
+
+Histogram processes implementation
+
+Authors: Logan Lembke and Benjamin Garcia
+Class: CSC442/542 Digital Image Processing
+Date: Spring 2017
+
+--]]
+
 require "util"
 require "ip"
 local pProc = require "pointProc"
 local il = require "il"
-
---[[
-  hContrastAuto takes in an image and determines the darkest and lightest intensities
-  present in the image. A contrast stretch is then performed with these as the
-  rangeStart and rangeEnd values.
---]]
-local function hContrastAuto (img)
-  il.RGB2YIQ(img)
-  local histogram, min, max = createHistogram(img), 0, 0
-  il.YIQ2RGB(img)
-  local i, count = 1000, 0
-  while true do
-    i = i - histogram[count]
-    if i < 0 then
-      min = count
-      break
-    end
-    count = count + 1
-  end
-  i, count = 1000, 255
-  while true do
-    i = i - histogram[count]
-    if i < 0 then
-      max = count
-      break
-    end
-    count = count - 1
-  end
-  --call pContrast directly with min and max
-  return pProc.contrastStretch(img, min, max)
-end
 
 --[[
   hContrastPercentage takes in the percentage of low and high intensity pixels
@@ -56,6 +37,14 @@ local function hContrastPercentage (img, lowPercent, highPercent)
     max = max - 1
   end
   return pProc.contrastStretch(img, min, max)
+end
+
+--[[
+  hContrastAuto takes in an image runs a percentage based
+  contrast stretch with a default clip percent of .001%.
+--]]
+local function hContrastAuto (img)
+  return hContrastPercentage(img, 0.001, 99.999)
 end
 
 --[[

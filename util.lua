@@ -1,12 +1,14 @@
---print and io:write do not seem to work... so this is used
-function print(msg) 
-  io.output(io.stdout):write(msg)
-end
+--[[
 
---only works when penlight is installed
-function dumpTable(table)
-  debug(require 'pl.pretty'.write(table))
-end
+  * * * * util.lua * * * *
+
+Util functions which the lua library doesn't have
+
+Authors: Logan Lembke and Benjamin Garcia
+Class: CSC442/542 Digital Image Processing
+Date: Spring 2017
+
+--]]
 
 function round (input) 
   return math.floor(input + .5)
@@ -19,13 +21,8 @@ function clip (input, low, high)
   if high == nil then
     high = 255
   end
-
-  if input < low then
-    input = low
-  elseif input > high then
-    input = high
-  end
-  return input
+  
+  return math.min(high, math.max(low, input))
 end
 
 --[[
