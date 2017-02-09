@@ -1,6 +1,6 @@
 --[[
 
-  * * * * pointProc.lua * * * *
+  * * * * histogramProc.lua * * * *
 
 Histogram processes implementation
 
